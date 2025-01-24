@@ -22,7 +22,7 @@ namespace HotelManagementSystem.Data
             if (!optionsBuilder.IsConfigured)
             {
                 optionsBuilder.UseMySql(
-                    "Server=localhost;Database=HotelManagementSystem;User=root;Password=root;",
+                    "Server=localhost;Database=hotelmanagementsystem;User Id=root;Password=;",
                     new MySqlServerVersion(new Version(8, 0, 31))
                 );
             }
