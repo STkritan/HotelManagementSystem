@@ -1,0 +1,60 @@
+﻿@model (IEnumerable<HotelManagementSystem.Models.Room>, IEnumerable<HotelManagementSystem.Models.Booking>)
+
+<h2>Admin Dashboard</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <h4>Rooms</h4>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Room Type</th>
+                    <th>Price Per Night</th>
+                    <th>Availability</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var room in Model.Item1)
+                {
+                    <tr>
+                        <td>@room.RoomType</td>
+                        <td>@room.PricePerNight.ToString("C")</td>
+                        <td>@(room.IsAvailable ? "Available" : "Not Available")</td>
+                        <td>
+                            <a href="/Admin/ManageRoom/@room.RoomId" class="btn btn-primary btn-sm">Edit</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <a href="/Admin/ManageRoom" class="btn btn-success">Add New Room</a>
+    </div>
+
+    <div class="col-md-6">
+        <h4>Bookings</h4>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Room ID</th>
+                    <th>User ID</th>
+                    <th>Check-In</th>
+                    <th>Check-Out</th>
+                    <th>Cancelled</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var booking in Model.Item2)
+                {
+                    <tr>
+                        <td>@booking.RoomId</td>
+                        <td>@booking.UserId</td>
+                        <td>@booking.CheckInDate.ToShortDateString()</td>
+                        <td>@booking.CheckOutDate.ToShortDateString()</td>
+                        <td>@(booking.IsCancelled ? "Yes" : "No")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,27 @@
+﻿@model HotelManagementSystem.Models.Room
+
+<h2>@(Model.RoomId == 0 ? "Add Room" : "Edit Room")</h2>
+
+<form asp-action="ManageRoom" method="post">
+    <div class="form-group">
+        <label for="RoomType">Room Type</label>
+        <input asp-for="RoomType" class="form-control" />
+        <span asp-validation-for="RoomType" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="PricePerNight">Price Per Night</label>
+        <input asp-for="PricePerNight" class="form-control" />
+        <span asp-validation-for="PricePerNight" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="IsAvailable">Is Available</label>
+        <select asp-for="IsAvailable" class="form-control">
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">@((Model.RoomId == 0) ? "Add" : "Update")</button>
+</form>

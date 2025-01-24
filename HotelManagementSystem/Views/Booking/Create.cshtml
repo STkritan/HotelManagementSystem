@@ -1,0 +1,20 @@
+﻿@model HotelManagementSystem.Models.Booking
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h2>Book a Room</h2>
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label for="RoomId">Select Room</label>
+        <select asp-for="RoomId" class="form-control" asp-items="@(new SelectList(ViewBag.Rooms, "RoomId", "RoomType"))"></select>
+    </div>
+    <div class="form-group">
+        <label for="CheckInDate">Check-In Date</label>
+        <input asp-for="CheckInDate" type="date" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="CheckOutDate">Check-Out Date</label>
+        <input asp-for="CheckOutDate" type="date" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Book</button>
+</form>

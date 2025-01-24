@@ -1,0 +1,24 @@
+﻿@model IEnumerable<HotelManagementSystem.Models.Room>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h2>Available Rooms</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Room Type</th>
+            <th>Price Per Night</th>
+            <th>Availability</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var room in Model)
+        {
+            <tr>
+                <td>@room.RoomType</td>
+                <td>@room.PricePerNight.ToString("C")</td>
+                <td>@(room.IsAvailable ? "Available" : "Not Available")</td>
+            </tr>
+        }
+    </tbody>
+</table>
