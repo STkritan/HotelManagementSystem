@@ -1,0 +1,53 @@
+﻿@model HotelManagementSystem.Models.User
+@{
+    ViewData["Title"] = "User Dashboard";
+    Layout = "_Layout";
+}
+
+<div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6">Welcome, @Model.FullName!</h1>
+
+    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <h2 class="text-2xl font-bold mb-4">Your Information</h2>
+        <p class="mb-2"><strong>Email:</strong> @Model.Email</p>
+    </div>
+
+    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <h2 class="text-2xl font-bold mb-4">Your Bookings</h2>
+        @if (Model.Bookings != null && Model.Bookings.Any())
+        {
+            <table class="min-w-full">
+                <thead>
+                    <tr>
+                        <th class="px-6 py-3 border-b-2 border-gray-300 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Booking ID</th>
+                        <th class="px-6 py-3 border-b-2 border-gray-300 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Room Type</th>
+                        <th class="px-6 py-3 border-b-2 border-gray-300 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Check-in Date</th>
+                        <th class="px-6 py-3 border-b-2 border-gray-300 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Check-out Date</th>
+                        <th class="px-6 py-3 border-b-2 border-gray-300 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var booking in Model.Bookings)
+                    {
+                        <tr>
+                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-300">@booking.BookingId</td>
+                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-300">@booking.Room.RoomType</td>
+                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-300">@booking.CheckInDate.ToShortDateString()</td>
+                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-300">@booking.CheckOutDate.ToShortDateString()</td>
+                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-300">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full @(booking.IsCancelled ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800")">
+                                    @(booking.IsCancelled ? "Cancelled" : "Active")
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>You have no bookings yet.</p>
+        }
+    </div>
+</div>
+

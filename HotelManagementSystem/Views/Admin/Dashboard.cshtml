@@ -1,60 +1,62 @@
-﻿@model (IEnumerable<HotelManagementSystem.Models.Room>, IEnumerable<HotelManagementSystem.Models.Booking>)
+﻿@model IEnumerable<HotelManagementSystem.Models.Booking>
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "_Layout";
+}
 
-<h2>Admin Dashboard</h2>
+<div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6">Admin Dashboard</h1>
 
-<div class="row">
-    <div class="col-md-6">
-        <h4>Rooms</h4>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Room Type</th>
-                    <th>Price Per Night</th>
-                    <th>Availability</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var room in Model.Item1)
-                {
-                    <tr>
-                        <td>@room.RoomType</td>
-                        <td>@room.PricePerNight.ToString("C")</td>
-                        <td>@(room.IsAvailable ? "Available" : "Not Available")</td>
-                        <td>
-                            <a href="/Admin/ManageRoom/@room.RoomId" class="btn btn-primary btn-sm">Edit</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-        <a href="/Admin/ManageRoom" class="btn btn-success">Add New Room</a>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h3 class="text-lg font-semibold mb-2">Total Bookings</h3>
+            <p class="text-3xl font-bold text-blue-600">@ViewBag.TotalBookings</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h3 class="text-lg font-semibold mb-2">Available Rooms</h3>
+            <p class="text-3xl font-bold text-green-600">@ViewBag.AvailableRooms</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h3 class="text-lg font-semibold mb-2">Total Revenue</h3>
+            <p class="text-3xl font-bold text-purple-600">$@ViewBag.TotalRevenue</p>
+        </div>
     </div>
 
-    <div class="col-md-6">
-        <h4>Bookings</h4>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Room ID</th>
-                    <th>User ID</th>
-                    <th>Check-In</th>
-                    <th>Check-Out</th>
-                    <th>Cancelled</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var booking in Model.Item2)
-                {
-                    <tr>
-                        <td>@booking.RoomId</td>
-                        <td>@booking.UserId</td>
-                        <td>@booking.CheckInDate.ToShortDateString()</td>
-                        <td>@booking.CheckOutDate.ToShortDateString()</td>
-                        <td>@(booking.IsCancelled ? "Yes" : "No")</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-6">
+            <h2 class="text-xl font-semibold mb-4">Recent Bookings</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check In</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check Out</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @foreach (var booking in Model)
+                        {
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">@booking.BookingId</td>
+                                <td class="px-6 py-4 whitespace-nowrap">@booking.User.FullName</td>
+                                <td class="px-6 py-4 whitespace-nowrap">@booking.Room.RoomType</td>
+                                <td class="px-6 py-4 whitespace-nowrap">@booking.CheckInDate.ToShortDateString()</td>
+                                <td class="px-6 py-4 whitespace-nowrap">@booking.CheckOutDate.ToShortDateString()</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full @(booking.IsCancelled ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800")">
+                                        @(booking.IsCancelled ? "Cancelled" : "Active")
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
+

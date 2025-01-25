@@ -1,20 +1,47 @@
 ﻿@model HotelManagementSystem.Models.Booking
 @{
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Create Booking";
+    Layout = "_Layout";
 }
-<h2>Book a Room</h2>
-<form asp-action="Create" method="post">
-    <div class="form-group">
-        <label for="RoomId">Select Room</label>
-        <select asp-for="RoomId" class="form-control" asp-items="@(new SelectList(ViewBag.Rooms, "RoomId", "RoomType"))"></select>
-    </div>
-    <div class="form-group">
-        <label for="CheckInDate">Check-In Date</label>
-        <input asp-for="CheckInDate" type="date" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label for="CheckOutDate">Check-Out Date</label>
-        <input asp-for="CheckOutDate" type="date" class="form-control" />
-    </div>
-    <button type="submit" class="btn btn-primary">Book</button>
-</form>
+
+<div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6">Create Booking</h1>
+
+    <form asp-action="Create" method="post" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <div class="mb-4">
+            <label asp-for="RoomId" class="block text-gray-700 text-sm font-bold mb-2">Room</label>
+            <select asp-for="RoomId" asp-items="ViewBag.Rooms" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <option value="">Select a room</option>
+            </select>
+            <span asp-validation-for="RoomId" class="text-red-500 text-xs italic"></span>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="CheckInDate" class="block text-gray-700 text-sm font-bold mb-2">Check-in Date</label>
+            <input asp-for="CheckInDate" type="date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+            <span asp-validation-for="CheckInDate" class="text-red-500 text-xs italic"></span>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="CheckOutDate" class="block text-gray-700 text-sm font-bold mb-2">Check-out Date</label>
+            <input asp-for="CheckOutDate" type="date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+            <span asp-validation-for="CheckOutDate" class="text-red-500 text-xs italic"></span>
+        </div>
+
+        <div class="flex items-center justify-between">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Create Booking
+            </button>
+            <a asp-action="Index" asp-controller="Room" class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800">
+                Back to Rooms
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

@@ -1,24 +1,32 @@
 ﻿@model IEnumerable<HotelManagementSystem.Models.Room>
 @{
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Rooms";
+    Layout = "_Layout";
 }
-<h2>Available Rooms</h2>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Room Type</th>
-            <th>Price Per Night</th>
-            <th>Availability</th>
-        </tr>
-    </thead>
-    <tbody>
+
+<div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6">Available Rooms</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @foreach (var room in Model)
         {
-            <tr>
-                <td>@room.RoomType</td>
-                <td>@room.PricePerNight.ToString("C")</td>
-                <td>@(room.IsAvailable ? "Available" : "Not Available")</td>
-            </tr>
+            <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-xl font-bold mb-2">@room.RoomType</h2>
+                    <p class="text-gray-700 mb-4">Price per night: $@room.PricePerNight</p>
+                    <p class="text-gray-700 mb-4">Status: @(room.IsAvailable ? "Available" : "Not Available")</p>
+                    <div class="flex justify-between items-center">
+                        <a asp-action="Details" asp-route-id="@room.RoomId" class="text-blue-500 hover:text-blue-700">View Details</a>
+                        @if (room.IsAvailable)
+                        {
+                            <a asp-controller="Booking" asp-action="Create" asp-route-roomId="@room.RoomId" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                Book Now
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
         }
-    </tbody>
-</table>
+    </div>
+</div>
+

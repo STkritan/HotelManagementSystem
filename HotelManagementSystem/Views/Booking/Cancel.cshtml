@@ -1,0 +1,36 @@
+﻿@model HotelManagementSystem.Models.Booking
+@{
+    ViewData["Title"] = "Cancel Booking";
+    Layout = "_Layout";
+}
+
+<div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6">Cancel Booking</h1>
+
+    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <h2 class="text-xl font-bold mb-4">Booking Details</h2>
+        <p class="mb-2"><strong>Booking ID:</strong> @Model.BookingId</p>
+        <p class="mb-2"><strong>Room:</strong> @Model.Room.RoomType</p>
+        <p class="mb-2"><strong>Check-in Date:</strong> @Model.CheckInDate.ToShortDateString()</p>
+        <p class="mb-2"><strong>Check-out Date:</strong> @Model.CheckOutDate.ToShortDateString()</p>
+        <p class="mb-4"><strong>Booking Date:</strong> @Model.BookingDate.ToShortDateString()</p>
+
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+            <p class="font-bold">Warning</p>
+            <p>Are you sure you want to cancel this booking? This action cannot be undone.</p>
+        </div>
+
+        <form asp-action="ConfirmCancel" method="post">
+            <input type="hidden" asp-for="BookingId" />
+            <div class="flex items-center justify-between">
+                <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Confirm Cancellation
+                </button>
+                <a asp-action="History" class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800">
+                    Back to Bookings
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+

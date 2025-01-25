@@ -1,8 +1,35 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="text-4xl font-bold mb-6">Welcome to Hotel Management System</h1>
+    <p class="text-xl mb-8">Find your perfect stay with us.</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold mb-4">Browse Rooms</h2>
+            <p class="mb-4">Explore our wide range of comfortable and luxurious rooms.</p>
+            <a asp-controller="Room" asp-action="Index" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                View Rooms
+            </a>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold mb-4">Make a Booking</h2>
+            <p class="mb-4">Ready to book your stay? Start your reservation now.</p>
+            <a asp-controller="Booking" asp-action="Create" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+                Book Now
+            </a>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold mb-4">Your Account</h2>
+            <p class="mb-4">Manage your bookings and account information.</p>
+            <a asp-controller="User" asp-action="Dashboard" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded">
+                My Dashboard
+            </a>
+        </div>
+    </div>
 </div>
+

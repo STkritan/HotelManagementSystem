@@ -1,48 +1,82 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Linq;
-using HotelManagementSystem.Data;
+using Microsoft.AspNetCore.Authorization;
 using HotelManagementSystem.Models;
+using System.Linq;
 
 namespace HotelManagementSystem.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
-        private readonly HotelDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public AdminController(HotelDbContext context)
+        public AdminController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // Admin Dashboard
         public IActionResult Dashboard()
         {
-            var rooms = _context.Rooms.ToList();
-            var bookings = _context.Bookings.ToList();
-            return View((rooms, bookings));
+            ViewBag.TotalBookings = _context.Bookings.Count();
+            ViewBag.AvailableRooms = _context.Rooms.Count(r => r.IsAvailable);
+            ViewBag.TotalRevenue = _context.Bookings.Sum(b => b.Room.PricePerNight * (b.CheckOutDate - b.CheckInDate).Days);
+
+            var recentBookings = _context.Bookings
+                .OrderByDescending(b => b.BookingDate)
+                .Take(10)
+                .ToList();
+
+            return View(recentBookings);
         }
 
-        // Add or Update Room
-        [HttpGet]
         public IActionResult ManageRoom(int? id)
         {
-            if (id == null) return View(new Room());
-            var room = _context.Rooms.FirstOrDefault(r => r.RoomId == id);
+            if (id == null)
+            {
+                return View(new Room());
+            }
+
+            var room = _context.Rooms.Find(id);
+            if (room == null)
+            {
+                return NotFound();
+            }
+
             return View(room);
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult ManageRoom(Room room)
         {
             if (ModelState.IsValid)
             {
-                if (room.RoomId == 0) _context.Rooms.Add(room);
-                else _context.Rooms.Update(room);
-
+                if (room.RoomId == 0)
+                {
+                    _context.Rooms.Add(room);
+                }
+                else
+                {
+                    _context.Rooms.Update(room);
+                }
                 _context.SaveChanges();
-                return RedirectToAction("Dashboard");
+                return RedirectToAction("Manage", "Room");
             }
             return View(room);
         }
+
+        public IActionResult DeleteRoom(int id)
+        {
+            var room = _context.Rooms.Find(id);
+            if (room == null)
+            {
+                return NotFound();
+            }
+
+            _context.Rooms.Remove(room);
+            _context.SaveChanges();
+            return RedirectToAction("Manage", "Room");
+        }
     }
 }
+

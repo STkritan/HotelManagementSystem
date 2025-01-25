@@ -1,76 +1,30 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Linq;
-using HotelManagementSystem.Data;
-using HotelManagementSystem.Models;
+﻿using HotelManagementSystem.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Utilities.Collections;
 
-namespace HotelManagementSystem.Controllers
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Create(Booking booking)
 {
-    public class BookingController : Controller
+    if (ModelState.IsValid)
     {
-        private readonly HotelDbContext _context;
+        var user = await _userManager.GetUserAsync(User);
+        booking.UserId = user.Id;  // Now this will work as both are strings
+        booking.BookingDate = DateTime.Now;
+        _context.Bookings.Add(booking);
+        await _context.SaveChangesAsync();
 
-        public BookingController(HotelDbContext context)
+        var room = await _context.Rooms.FindAsync(booking.RoomId);
+        if (room != null)
         {
-            _context = context;
+            room.IsAvailable = false;
+            await _context.SaveChangesAsync();
         }
 
-        // Book a Room
-        [HttpGet]
-        public IActionResult Create()
-        {
-            ViewBag.Rooms = _context.Rooms.Where(r => r.IsAvailable).ToList();
-            return View();
-        }
-
-        [HttpPost]
-        public IActionResult Create(Booking booking)
-        {
-            if (ModelState.IsValid)
-            {
-                booking.BookingDate = DateTime.Now;
-                _context.Bookings.Add(booking);
-
-                // Update room availability
-                var room = _context.Rooms.FirstOrDefault(r => r.RoomId == booking.RoomId);
-                if (room != null) room.IsAvailable = false;
-
-                _context.SaveChanges();
-                return RedirectToAction("History", "Booking");
-            }
-            return View(booking);
-        }
-
-        // View Booking History
-        public IActionResult History(int userId)
-        {
-            var bookings = _context.Bookings.Where(b => b.UserId == userId).ToList();
-            return View(bookings);
-        }
-
-        // Cancel Booking
-        [HttpGet]
-        public IActionResult Cancel(int id)
-        {
-            var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == id);
-            if (booking == null) return NotFound();
-            return View(booking);
-        }
-
-        [HttpPost]
-        public IActionResult CancelConfirmed(int id)
-        {
-            var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == id);
-            if (booking != null)
-            {
-                booking.IsCancelled = true;
-
-                // Mark room as available
-                var room = _context.Rooms.FirstOrDefault(r => r.RoomId == booking.RoomId);
-                if (room != null) room.IsAvailable = true;
-
-                _context.SaveChanges();
-            }
-            return RedirectToAction("History");
-        }
+        return RedirectToAction(nameof(History));
     }
+    ViewBag.Rooms = await _context.Rooms.Where(r => r.IsAvailable).ToListAsync();
+    return View(booking);
 }
+
