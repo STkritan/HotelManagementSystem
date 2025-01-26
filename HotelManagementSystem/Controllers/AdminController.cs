@@ -1,81 +1,129 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using HotelManagementSystem.Data;
 using HotelManagementSystem.Models;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace HotelManagementSystem.Controllers
 {
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly HotelDbContext _context;
 
-        public AdminController(ApplicationDbContext context)
+        public AdminController(HotelDbContext context)
         {
             _context = context;
         }
 
-        public IActionResult Dashboard()
+        public async Task<IActionResult> Dashboard()
         {
-            ViewBag.TotalBookings = _context.Bookings.Count();
-            ViewBag.AvailableRooms = _context.Rooms.Count(r => r.IsAvailable);
-            ViewBag.TotalRevenue = _context.Bookings.Sum(b => b.Room.PricePerNight * (b.CheckOutDate - b.CheckInDate).Days);
+            ViewBag.TotalBookings = await _context.Bookings.CountAsync();
+            ViewBag.AvailableRooms = await _context.Rooms.CountAsync(r => r.IsAvailable);
+            ViewBag.TotalRevenue = await _context.Bookings.Where(b => !b.IsCancelled).SumAsync(b => b.TotalPrice);
 
-            var recentBookings = _context.Bookings
+            var recentBookings = await _context.Bookings
+                .Include(b => b.User)
+                .Include(b => b.Room)
                 .OrderByDescending(b => b.BookingDate)
                 .Take(10)
-                .ToList();
+                .ToListAsync();
 
             return View(recentBookings);
         }
 
-        public IActionResult ManageRoom(int? id)
+        public async Task<IActionResult> ManageRooms()
         {
-            if (id == null)
-            {
-                return View(new Room());
-            }
+            var rooms = await _context.Rooms.ToListAsync();
+            return View(rooms);
+        }
 
-            var room = _context.Rooms.Find(id);
+        public IActionResult CreateRoom()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateRoom(Room room)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(room);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(ManageRooms));
+            }
+            return View(room);
+        }
+
+        public async Task<IActionResult> EditRoom(int id)
+        {
+            var room = await _context.Rooms.FindAsync(id);
             if (room == null)
             {
                 return NotFound();
             }
-
             return View(room);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult ManageRoom(Room room)
+        public async Task<IActionResult> EditRoom(int id, Room room)
         {
+            if (id != room.RoomId)
+            {
+                return NotFound();
+            }
+
             if (ModelState.IsValid)
             {
-                if (room.RoomId == 0)
+                try
                 {
-                    _context.Rooms.Add(room);
+                    _context.Update(room);
+                    await _context.SaveChangesAsync();
                 }
-                else
+                catch (DbUpdateConcurrencyException)
                 {
-                    _context.Rooms.Update(room);
+                    if (!RoomExists(room.RoomId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
-                _context.SaveChanges();
-                return RedirectToAction("Manage", "Room");
+                return RedirectToAction(nameof(ManageRooms));
             }
             return View(room);
         }
 
-        public IActionResult DeleteRoom(int id)
+        public async Task<IActionResult> DeleteRoom(int id)
         {
-            var room = _context.Rooms.Find(id);
+            var room = await _context.Rooms.FindAsync(id);
             if (room == null)
             {
                 return NotFound();
             }
 
+            return View(room);
+        }
+
+        [HttpPost, ActionName("DeleteRoom")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteRoomConfirmed(int id)
+        {
+            var room = await _context.Rooms.FindAsync(id);
             _context.Rooms.Remove(room);
-            _context.SaveChanges();
-            return RedirectToAction("Manage", "Room");
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(ManageRooms));
+        }
+
+        private bool RoomExists(int id)
+        {
+            return _context.Rooms.Any(e => e.RoomId == id);
         }
     }
 }

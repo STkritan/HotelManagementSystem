@@ -1,10 +1,9 @@
-﻿@model IEnumerable<HotelManagementSystem.Models.Booking>
+﻿@model IEnumerable<Booking>
 @{
     ViewData["Title"] = "Admin Dashboard";
-    Layout = "_Layout";
 }
 
-<div class="container mx-auto p-6">
+<div class="container mx-auto">
     <h1 class="text-3xl font-bold mb-6">Admin Dashboard</h1>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -22,6 +21,16 @@
         </div>
     </div>
 
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold mb-4">Room Management</h2>
+        <a asp-action="CreateRoom" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">
+            Add New Room
+        </a>
+        <a asp-action="ManageRooms" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block ml-2">
+            Manage Rooms
+        </a>
+    </div>
+
     <div class="bg-white rounded-lg shadow">
         <div class="p-6">
             <h2 class="text-xl font-semibold mb-4">Recent Bookings</h2>
@@ -34,6 +43,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check In</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check Out</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Price</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                         </tr>
                     </thead>
@@ -46,6 +56,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap">@booking.Room.RoomType</td>
                                 <td class="px-6 py-4 whitespace-nowrap">@booking.CheckInDate.ToShortDateString()</td>
                                 <td class="px-6 py-4 whitespace-nowrap">@booking.CheckOutDate.ToShortDateString()</td>
+                                <td class="px-6 py-4 whitespace-nowrap">$@booking.TotalPrice</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full @(booking.IsCancelled ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800")">
                                         @(booking.IsCancelled ? "Cancelled" : "Active")

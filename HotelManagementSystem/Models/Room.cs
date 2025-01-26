@@ -1,26 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace HotelManagementSystem.Models
 {
-    // Room Model
     public class Room
     {
-        [Key]
         public int RoomId { get; set; }
 
         [Required]
-        [StringLength(50)]
-        public string RoomType { get; set; } // e.g., Single, Double, Suite
+        [Display(Name = "Room Type")]
+        public string RoomType { get; set; }
 
         [Required]
+        [Display(Name = "Price Per Night")]
+        [DataType(DataType.Currency)]
         public decimal PricePerNight { get; set; }
 
-        [Required]
-        public bool IsAvailable { get; set; }
+        [Display(Name = "Available")]
+        public bool IsAvailable { get; set; } = true;
 
-        public virtual ICollection<Booking> Bookings { get; set; } // Relationship with Booking
-    
+        public string Description { get; set; }
+        public string ImageUrl { get; set; }
     }
 }
+

@@ -1,28 +1,32 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using HotelManagementSystem.Data;
 using HotelManagementSystem.Models;
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 
 namespace HotelManagementSystem.Controllers
 {
     public class RoomController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly HotelDbContext _context;
 
-        public RoomController(ApplicationDbContext context)
+        public RoomController(HotelDbContext context)
         {
             _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var rooms = _context.Rooms.Where(r => r.IsAvailable).ToList();
+            var rooms = await _context.Rooms.ToListAsync();
             return View(rooms);
         }
 
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var room = _context.Rooms.Find(id);
+            var room = await _context.Rooms.FindAsync(id);
             if (room == null)
             {
                 return NotFound();
@@ -30,11 +34,121 @@ namespace HotelManagementSystem.Controllers
             return View(room);
         }
 
-        [Authorize(Roles = "Admin")]
-        public IActionResult Manage()
+        [HttpGet]
+        public async Task<IActionResult> CheckAvailability(int roomId, DateTime checkIn, DateTime checkOut)
         {
-            var rooms = _context.Rooms.ToList();
+            var room = await _context.Rooms.FindAsync(roomId);
+            if (room == null)
+            {
+                return NotFound();
+            }
+
+            var isAvailable = !await _context.Bookings
+                .AnyAsync(b => b.RoomId == roomId && !b.IsCancelled &&
+                    ((checkIn >= b.CheckInDate && checkIn < b.CheckOutDate) ||
+                    (checkOut > b.CheckInDate && checkOut <= b.CheckOutDate) ||
+                    (checkIn <= b.CheckInDate && checkOut >= b.CheckOutDate)));
+
+            return Json(new { isAvailable });
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Manage()
+        {
+            var rooms = await _context.Rooms.ToListAsync();
             return View(rooms);
+        }
+
+        [Authorize(Roles = "Admin")]
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Create(Room room)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(room);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Manage));
+            }
+            return View(room);
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var room = await _context.Rooms.FindAsync(id);
+            if (room == null)
+            {
+                return NotFound();
+            }
+            return View(room);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(int id, Room room)
+        {
+            if (id != room.RoomId)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(room);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!RoomExists(room.RoomId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Manage));
+            }
+            return View(room);
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var room = await _context.Rooms.FindAsync(id);
+            if (room == null)
+            {
+                return NotFound();
+            }
+
+            return View(room);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var room = await _context.Rooms.FindAsync(id);
+            _context.Rooms.Remove(room);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Manage));
+        }
+
+        private bool RoomExists(int id)
+        {
+            return _context.Rooms.Any(e => e.RoomId == id);
         }
     }
 }

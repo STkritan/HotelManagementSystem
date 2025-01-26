@@ -1,13 +1,14 @@
-﻿@model HotelManagementSystem.Models.Booking
+﻿@model Booking
 @{
     ViewData["Title"] = "Create Booking";
-    Layout = "_Layout";
 }
 
-<div class="container mx-auto p-6">
+<div class="container mx-auto">
     <h1 class="text-3xl font-bold mb-6">Create Booking</h1>
 
     <form asp-action="Create" method="post" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <div asp-validation-summary="ModelOnly" class="text-red-500 mb-4"></div>
+
         <div class="mb-4">
             <label asp-for="RoomId" class="block text-gray-700 text-sm font-bold mb-2">Room</label>
             <select asp-for="RoomId" asp-items="ViewBag.Rooms" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
@@ -43,5 +44,22 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        $(document).ready(function () {
+            $('#CheckInDate, #CheckOutDate').change(function () {
+                var roomId = $('#RoomId').val();
+                var checkIn = $('#CheckInDate').val();
+                var checkOut = $('#CheckOutDate').val();
+
+                if (roomId && checkIn && checkOut) {
+                    $.get('/Room/CheckAvailability', { roomId: roomId, checkIn: checkIn, checkOut: checkOut }, function (data) {
+                        if (!data.isAvailable) {
+                            alert('The selected room is not available for the chosen dates.');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 }
 

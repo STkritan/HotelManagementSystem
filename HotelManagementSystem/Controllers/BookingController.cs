@@ -1,30 +1,112 @@
-﻿using HotelManagementSystem.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Utilities.Collections;
+using Microsoft.EntityFrameworkCore;
+using HotelManagementSystem.Data;
+using HotelManagementSystem.Models;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> Create(Booking booking)
+namespace HotelManagementSystem.Controllers
 {
-    if (ModelState.IsValid)
+    [Authorize]
+    public class BookingController : Controller
     {
-        var user = await _userManager.GetUserAsync(User);
-        booking.UserId = user.Id;  // Now this will work as both are strings
-        booking.BookingDate = DateTime.Now;
-        _context.Bookings.Add(booking);
-        await _context.SaveChangesAsync();
+        private readonly HotelDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        var room = await _context.Rooms.FindAsync(booking.RoomId);
-        if (room != null)
+        public BookingController(HotelDbContext context, UserManager<User> userManager)
         {
-            room.IsAvailable = false;
-            await _context.SaveChangesAsync();
+            _context = context;
+            _userManager = userManager;
         }
 
-        return RedirectToAction(nameof(History));
+        public async Task<IActionResult> Create(int? roomId)
+        {
+            ViewBag.Rooms = await _context.Rooms.Where(r => r.IsAvailable).ToListAsync();
+            var booking = new Booking();
+            if (roomId.HasValue)
+            {
+                booking.RoomId = roomId.Value;
+            }
+            return View(booking);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Booking booking)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                booking.UserId = user.Id;
+                booking.BookingDate = DateTime.Now;
+
+                // Check if the room is available for the selected dates
+                var isAvailable = !await _context.Bookings
+                    .AnyAsync(b => b.RoomId == booking.RoomId && !b.IsCancelled &&
+                        ((booking.CheckInDate >= b.CheckInDate && booking.CheckInDate < b.CheckOutDate) ||
+                        (booking.CheckOutDate > b.CheckInDate && booking.CheckOutDate <= b.CheckOutDate) ||
+                        (booking.CheckInDate <= b.CheckInDate && booking.CheckOutDate >= b.CheckOutDate)));
+
+                if (!isAvailable)
+                {
+                    ModelState.AddModelError("", "The selected room is not available for the chosen dates.");
+                    ViewBag.Rooms = await _context.Rooms.Where(r => r.IsAvailable).ToListAsync();
+                    return View(booking);
+                }
+
+                var room = await _context.Rooms.FindAsync(booking.RoomId);
+                booking.TotalPrice = room.PricePerNight * (booking.CheckOutDate - booking.CheckInDate).Days;
+
+                _context.Bookings.Add(booking);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(History));
+            }
+            ViewBag.Rooms = await _context.Rooms.Where(r => r.IsAvailable).ToListAsync();
+            return View(booking);
+        }
+
+        public async Task<IActionResult> History()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var bookings = await _context.Bookings
+                .Include(b => b.Room)
+                .Where(b => b.UserId == user.Id)
+                .OrderByDescending(b => b.BookingDate)
+                .ToListAsync();
+            return View(bookings);
+        }
+
+        public async Task<IActionResult> Cancel(int id)
+        {
+            var booking = await _context.Bookings
+                .Include(b => b.Room)
+                .FirstOrDefaultAsync(b => b.BookingId == id);
+            if (booking == null)
+            {
+                return NotFound();
+            }
+            return View(booking);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmCancel(int id)
+        {
+            var booking = await _context.Bookings.FindAsync(id);
+            if (booking == null)
+            {
+                return NotFound();
+            }
+
+            booking.IsCancelled = true;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(History));
+        }
     }
-    ViewBag.Rooms = await _context.Rooms.Where(r => r.IsAvailable).ToListAsync();
-    return View(booking);
 }
 
