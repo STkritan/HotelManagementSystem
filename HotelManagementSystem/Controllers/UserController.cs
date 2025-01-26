@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using HotelManagementSystem.Models;
+using HotelManagementSystem.Data;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -11,9 +12,12 @@ namespace HotelManagementSystem.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
-        private readonly ApplicationDbContext _context;
+        private readonly HotelDbContext _context;
 
-        public UserController(UserManager<User> userManager, SignInManager<User> signInManager, ApplicationDbContext context)
+        public UserController(
+            UserManager<User> userManager,
+            SignInManager<User> signInManager,
+            HotelDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -84,6 +88,8 @@ namespace HotelManagementSystem.Controllers
             return View(user);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         [Authorize]
         public async Task<IActionResult> Logout()
         {

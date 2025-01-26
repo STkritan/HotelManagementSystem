@@ -6,7 +6,10 @@ namespace HotelManagementSystem.Data
 {
     public class HotelDbContext : IdentityDbContext<User>
     {
-        public HotelDbContext(DbContextOptions<HotelDbContext> options) : base(options) { }
+        public HotelDbContext(DbContextOptions<HotelDbContext> options)
+            : base(options)
+        {
+        }
 
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Booking> Bookings { get; set; }
@@ -16,7 +19,6 @@ namespace HotelManagementSystem.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configure relationships
             modelBuilder.Entity<Booking>()
                 .HasOne(b => b.User)
                 .WithMany(u => u.Bookings)
