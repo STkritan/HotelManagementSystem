@@ -7,7 +7,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddRazorPages();
 
 // Add DbContext
 builder.Services.AddDbContext<HotelDbContext>(options =>
@@ -56,7 +55,39 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-app.MapRazorPages();
+
+// Seed roles and admin user
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+
+    if (!await roleManager.RoleExistsAsync("Admin"))
+    {
+        await roleManager.CreateAsync(new IdentityRole("Admin"));
+    }
+
+    if (!await roleManager.RoleExistsAsync("User"))
+    {
+        await roleManager.CreateAsync(new IdentityRole("User"));
+    }
+
+    string adminEmail = "admin@example.com";
+    string adminPassword = "Admin123!";
+
+    if (await userManager.FindByEmailAsync(adminEmail) == null)
+    {
+        var adminUser = new User
+        {
+            UserName = adminEmail,
+            Email = adminEmail,
+            FullName = "Admin User"
+        };
+
+        await userManager.CreateAsync(adminUser, adminPassword);
+        await userManager.AddToRoleAsync(adminUser, "Admin");
+    }
+}
 
 app.Run();
 

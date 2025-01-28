@@ -7,26 +7,26 @@ namespace HotelManagementSystem.Models
     {
         public int BookingId { get; set; }
 
+        [Required]
         public string UserId { get; set; }
-        public virtual User User { get; set; }
+        public User User { get; set; }
 
+        [Required]
         public int RoomId { get; set; }
-        public virtual Room Room { get; set; }
+        public Room Room { get; set; }
 
         [Required]
         [DataType(DataType.Date)]
-        [Display(Name = "Check-in Date")]
         public DateTime CheckInDate { get; set; }
 
         [Required]
         [DataType(DataType.Date)]
-        [Display(Name = "Check-out Date")]
         public DateTime CheckOutDate { get; set; }
 
         [DataType(DataType.DateTime)]
-        public DateTime BookingDate { get; set; }
+        public DateTime BookingDate { get; set; } = DateTime.Now;
 
-        public bool IsCancelled { get; set; }
+        public bool IsCancelled { get; set; } = false;
 
         [DataType(DataType.Currency)]
         public decimal TotalPrice { get; set; }
