@@ -9,8 +9,8 @@ namespace HotelManagementSystem.ViewModels
         public int TotalUsers { get; set; }
         public int TotalRooms { get; set; }
         public decimal TotalRevenue { get; set; }
-        public IEnumerable<Booking> RecentBookings { get; set; }
-        public IEnumerable<Room> AvailableRooms { get; set; }
+        public IEnumerable<Booking> RecentBookings { get; set; } = new List<Booking>();
+        public IEnumerable<Room> AvailableRooms { get; set; } = new List<Room>();
     }
 }
 

@@ -18,7 +18,7 @@ namespace HotelManagementSystem.ViewModels
         public DateTime CheckOutDate { get; set; }
 
         [Display(Name = "Room Type")]
-        public string RoomType { get; set; }
+        public string RoomType { get; set; } = string.Empty;
 
         [Display(Name = "Price per Night")]
         public decimal PricePerNight { get; set; }

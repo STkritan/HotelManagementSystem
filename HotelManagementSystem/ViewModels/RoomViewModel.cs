@@ -9,7 +9,7 @@ namespace HotelManagementSystem.ViewModels
 
         [Required]
         [Display(Name = "Room Type")]
-        public string RoomType { get; set; }
+        public string RoomType { get; set; } = string.Empty;
 
         [Required]
         [Display(Name = "Price per Night")]
@@ -17,12 +17,12 @@ namespace HotelManagementSystem.ViewModels
         public decimal PricePerNight { get; set; }
 
         [Display(Name = "Description")]
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         [Display(Name = "Room Image")]
-        public IFormFile ImageFile { get; set; }
+        public IFormFile? ImageFile { get; set; }
 
-        public string ExistingImageUrl { get; set; }
+        public string? ExistingImageUrl { get; set; }
 
         [Display(Name = "Available")]
         public bool IsAvailable { get; set; }

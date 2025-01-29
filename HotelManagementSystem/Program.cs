@@ -24,8 +24,8 @@ builder.Services.AddIdentity<User, IdentityRole>(options => {
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequiredLength = 6;
 })
-    .AddEntityFrameworkStores<HotelDbContext>()
-    .AddDefaultTokenProviders();
+.AddEntityFrameworkStores<HotelDbContext>()
+.AddDefaultTokenProviders();
 
 // Configure cookie policy
 builder.Services.ConfigureApplicationCookie(options =>
@@ -90,4 +90,3 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
-
