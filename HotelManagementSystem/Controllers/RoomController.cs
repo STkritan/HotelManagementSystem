@@ -118,6 +118,20 @@ namespace HotelManagementSystem.Controllers
                         throw;
                     }
                 }
+                catch (DbUpdateException ex)
+                {
+                    // Log the exception (e.g., using a logging framework)
+                    Console.WriteLine(ex.Message);  // Log the exception message or use your logger here
+                    ModelState.AddModelError("", "An error occurred while updating the room. Please try again.");
+                    return View(room);
+                }
+                catch (Exception ex)
+                {
+                    // Log the exception (e.g., using a logging framework)
+                    Console.WriteLine(ex.Message);  // Log the exception message or use your logger here
+                    ModelState.AddModelError("", "An unexpected error occurred. Please try again.");
+                    return View(room);
+                }
                 return RedirectToAction(nameof(Manage));
             }
             return View(room);
@@ -141,6 +155,11 @@ namespace HotelManagementSystem.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var room = await _context.Rooms.FindAsync(id);
+            if (room == null)
+            {
+                return NotFound();
+            }
+
             _context.Rooms.Remove(room);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Manage));
@@ -152,4 +171,3 @@ namespace HotelManagementSystem.Controllers
         }
     }
 }
-

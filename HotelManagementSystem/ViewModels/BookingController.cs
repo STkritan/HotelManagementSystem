@@ -24,14 +24,27 @@ namespace HotelManagementSystem.Controllers
 
         public async Task<IActionResult> Create(int? roomId)
         {
+            // Fetch available rooms for the dropdown or selection
             ViewBag.Rooms = await _context.Rooms.Where(r => r.IsAvailable).ToListAsync();
+
             var booking = new Booking();
+
             if (roomId.HasValue)
             {
+                // Set the RoomId for the booking if it's provided
                 booking.RoomId = roomId.Value;
             }
-            return View(booking);
+            else
+            {
+                // Handle case where no roomId is passed
+                ModelState.AddModelError("", "No room selected.");
+                return View(booking);  // Return the view with the error message
+            }
+
+            // If you reach this point, the roomId is valid
+            return View(booking);  // Return the booking view (which could contain the roomId)
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -68,6 +81,9 @@ namespace HotelManagementSystem.Controllers
             ViewBag.Rooms = await _context.Rooms.Where(r => r.IsAvailable).ToListAsync();
             return View(booking);
         }
+
+    
+
 
         public async Task<IActionResult> History()
         {

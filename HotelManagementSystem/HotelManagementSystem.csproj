@@ -22,7 +22,7 @@
 		</PackageReference>
 
 		<!-- Updated Pomelo MySQL provider -->
-		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.0-beta.2" />
+		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.1" />
 
 		<!-- Development Tools -->
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.1" />

@@ -47,16 +47,20 @@ namespace HotelManagementSystem.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+                    // Add user to the 'User' role and sign in
                     await _userManager.AddToRoleAsync(user, "User");
                     await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Home");  // Redirect to home page after successful registration
                 }
 
+                // Add model errors if registration failed
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
+
+            // Return the model if validation fails
             return View(model);
         }
 
@@ -72,6 +76,7 @@ namespace HotelManagementSystem.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Attempt to sign in using the provided credentials
                 var result = await _signInManager.PasswordSignInAsync(
                     model.Email,
                     model.Password,
@@ -80,11 +85,15 @@ namespace HotelManagementSystem.Controllers
 
                 if (result.Succeeded)
                 {
+                    // Redirect to home page on successful login
                     return RedirectToAction("Index", "Home");
                 }
 
+                // Add model error if login attempt fails
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             }
+
+            // Return the model to the view if validation fails
             return View(model);
         }
 
@@ -94,15 +103,17 @@ namespace HotelManagementSystem.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound();
+                return NotFound();  // Return 404 if the user is not found
             }
 
+            // Get all bookings associated with the user
             var bookings = await _context.Bookings
                 .Include(b => b.Room)
                 .Where(b => b.UserId == user.Id)
                 .OrderByDescending(b => b.BookingDate)
                 .ToListAsync();
 
+            // Return the bookings to the Dashboard view
             return View(bookings);
         }
 
@@ -111,9 +122,8 @@ namespace HotelManagementSystem.Controllers
         [Authorize]
         public async Task<IActionResult> Logout()
         {
-            await _signInManager.SignOutAsync();
-            return RedirectToAction("Index", "Home");
+            await _signInManager.SignOutAsync();  // Sign out the user
+            return RedirectToAction("Index", "Home");  // Redirect to home page after logging out
         }
     }
 }
-
