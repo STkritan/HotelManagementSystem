@@ -23,7 +23,7 @@ namespace HotelManagementSystem.Migrations
                 .HasAnnotation("ProductVersion", "8.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
+         
 
             modelBuilder.Entity("HotelManagementSystem.Models.Admin", b =>
                 {

@@ -39,16 +39,11 @@ namespace HotelManagementSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(
-                    model.Email,
-                    model.Password,
-                    model.RememberMe,
-                    lockoutOnFailure: false);
-
+                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
                     var user = await _userManager.FindByEmailAsync(model.Email);
-                    if (user != null && await _userManager.IsInRoleAsync(user, "Admin"))
+                    if (user != null && user.IsAdmin)
                     {
                         return RedirectToAction(nameof(Dashboard));
                     }
@@ -64,24 +59,9 @@ namespace HotelManagementSystem.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> Dashboard()
+        public IActionResult Dashboard()
         {
-            var bookings = await _context.Bookings
-                .Include(b => b.User)
-                .Include(b => b.Room)
-                .OrderByDescending(b => b.BookingDate)
-                .Take(10)
-                .ToListAsync();
-
-            ViewBag.TotalBookings = await _context.Bookings.CountAsync();
-            ViewBag.TotalUsers = await _userManager.Users.CountAsync();
-            ViewBag.TotalRooms = await _context.Rooms.CountAsync();
-            ViewBag.AvailableRooms = await _context.Rooms.CountAsync(r => r.IsAvailable);
-            ViewBag.TotalRevenue = await _context.Bookings
-                .Where(b => !b.IsCancelled)
-                .SumAsync(b => b.TotalPrice);
-
-            return View(bookings);
+            return View();
         }
 
         [HttpPost]
@@ -89,102 +69,13 @@ namespace HotelManagementSystem.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction("Login");
+            return RedirectToAction("Login", "Admin");
         }
 
-        public async Task<IActionResult> ManageRooms()
+        public async Task<IActionResult> UserManagement()
         {
-            var rooms = await _context.Rooms.ToListAsync();
-            return View(rooms);
-        }
-
-        public IActionResult CreateRoom()
-        {
-            return View(new Room());
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateRoom(Room room)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(room);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(ManageRooms));
-            }
-            return View(room);
-        }
-
-        public async Task<IActionResult> EditRoom(int id)
-        {
-            var room = await _context.Rooms.FindAsync(id);
-            if (room == null)
-            {
-                return NotFound();
-            }
-            return View(room);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditRoom(int id, Room room)
-        {
-            if (id != room.RoomId)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(room);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!RoomExists(room.RoomId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(ManageRooms));
-            }
-            return View(room);
-        }
-
-        public async Task<IActionResult> DeleteRoom(int id)
-        {
-            var room = await _context.Rooms.FindAsync(id);
-            if (room == null)
-            {
-                return NotFound();
-            }
-
-            return View(room);
-        }
-
-        [HttpPost, ActionName("DeleteRoom")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteRoomConfirmed(int id)
-        {
-            var room = await _context.Rooms.FindAsync(id);
-            if (room != null)
-            {
-                _context.Rooms.Remove(room);
-                await _context.SaveChangesAsync();
-            }
-            return RedirectToAction(nameof(ManageRooms));
-        }
-
-        private bool RoomExists(int id)
-        {
-            return _context.Rooms.Any(e => e.RoomId == id);
+            var users = await _userManager.Users.ToListAsync();
+            return View(users);
         }
     }
 }

@@ -11,31 +11,43 @@ namespace HotelManagementSystem.Data
         {
         }
 
-        public DbSet<Room> Rooms { get; set; }
-        public DbSet<Booking> Bookings { get; set; }
-        public DbSet<Admin> Admins { get; set; }
+        public DbSet<Room> Rooms => Set<Room>();
+        public DbSet<Booking> Bookings => Set<Booking>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Booking>()
-                .HasOne(b => b.User)
-                .WithMany(u => u.Bookings)
-                .HasForeignKey(b => b.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+            // Configure Room entity
+            modelBuilder.Entity<Room>(entity =>
+            {
+                entity.HasKey(e => e.RoomId);
+                entity.Property(e => e.RoomId)
+                    .ValueGeneratedOnAdd();
+                entity.Property(e => e.PricePerNight)
+                    .HasColumnType("decimal(18,2)");
+            });
 
-            modelBuilder.Entity<Booking>()
-                .HasOne(b => b.Room)
-                .WithMany()
-                .HasForeignKey(b => b.RoomId)
-                .OnDelete(DeleteBehavior.Cascade);
+            // Configure Booking entity
+            modelBuilder.Entity<Booking>(entity =>
+            {
+                entity.HasKey(e => e.BookingId);
+                entity.Property(e => e.BookingId)
+                    .ValueGeneratedOnAdd();
+                entity.Property(e => e.TotalPrice)
+                    .HasColumnType("decimal(18,2)");
 
-            modelBuilder.Entity<Admin>()
-                .HasOne(a => a.User)
-                .WithMany()
-                .HasForeignKey(a => a.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                // Configure relationships
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.Bookings)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.Room)
+                    .WithMany(p => p.Bookings)
+                    .HasForeignKey(d => d.RoomId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 }

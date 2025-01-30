@@ -6,15 +6,15 @@ namespace HotelManagementSystem.Models
     public class User : IdentityUser
     {
         [Required]
+        [StringLength(100)]
         [Display(Name = "Full Name")]
-        public string FullName { get; set; }
+        public string FullName { get; set; } = string.Empty;
 
-        public virtual ICollection<Booking> Bookings { get; set; }
+        [Display(Name = "Is Admin")]
+        public bool IsAdmin { get; set; }
 
-        public User()
-        {
-            Bookings = new HashSet<Booking>();
-        }
+        // Navigation property
+        public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
     }
 }
 
