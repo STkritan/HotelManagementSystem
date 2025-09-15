@@ -37,7 +37,12 @@ namespace HotelManagementSystem.Controllers // Replace YourAppName with your act
         {
             if (ModelState.IsValid)
             {
-                var user = new IdentityUser { Email = model.Email, UserName = model.Email };
+                var user = new User // Changed from IdentityUser to User
+                {
+                    Email = model.Email,
+                    UserName = model.Email,
+                    FullName = model.FullName // Set FullName from model
+                };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
